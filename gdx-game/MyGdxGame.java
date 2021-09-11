@@ -1,6 +1,6 @@
 package com.jouhou;
 
-import com.aminedev.run.MenuScreen;
+import com.jouhou.MenuScreen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 
