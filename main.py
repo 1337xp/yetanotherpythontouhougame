@@ -1,7 +1,10 @@
+import random
 import sys
 import pygame
 import math
 from pygame.locals import Color, KEYUP, K_ESCAPE, K_LEFT,K_RIGHT,K_DOWN,KEYDOWN
+from pygame.math import Vector2
+import numpy as np
 class spritesheet(object):
     def __init__(self, filename):
            self.sheet = pygame.image.load(filename).convert()
@@ -133,10 +136,36 @@ class Player(pygame.sprite.Sprite):
             if self.movex > 0:
                 self.frame += 1
                 self.image = pygame.transform.flip(self.images[2].next(), True, False)
+class Boss(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("images/YuukaKazamiBoss.png")
+        self.rect = self.image.get_rect()
+
+class BossBullet(pygame.sprite.Sprite):
 
 
-
-
+    def __init__(self,playerx,playery,spin):
+        pygame.sprite.Sprite.__init__(self,)
+        self.spin = spin
+        self.image = pygame.image.load("images/bullet.png")
+        self.image.set_colorkey((120,120,120))
+        self.rect = self.image.get_rect()
+        self.rect.center = (90,90)
+        self.angle = 120
+        self.counter = 0
+        self.rect.x = playerx
+        self.rect.y = playery
+        self.pos = Vector2(self.rect.center)
+        self.spin1 = 0
+    def update(self):
+        print(self.spin)
+        self.velocity = Vector2(0.25, 0).rotate(self.spin*100-90) * 5
+        self.pos += self.velocity
+        self.rect.center = self.pos
+        if (self.rect.right > 1000 or self.rect.left < 0
+                or self.rect.bottom > 1000 or self.rect.top < 0):
+            self.kill()
 class Bullet(pygame.sprite.Sprite):
     """ This class represents the bullet . """
 
@@ -174,6 +203,7 @@ bulletcounter = 0
 dt = 0
 shootTime = 0
 shooting = 0
+n = 0
 while True:
     current_time = pygame.time.get_ticks()
     shootTime += 1
@@ -209,6 +239,14 @@ while True:
                 sys.exit()
     shootTime += 1
     if shootTime >= 20 and shooting == 1:
+        n += 1
+        if n == 60:
+            n = 0
+        Fs = 8000
+        f = 5
+        sample = 8000
+        x = np.arange(sample)
+        y = np.sin(2 * np.pi * f * x / Fs)
         # Fire a bullet if the user clicks the mouse button
         bullet = Bullet()
         # Set the bullet so it is where the player is
@@ -216,6 +254,7 @@ while True:
         bullet.rect.y = player.rect.y
         # Add the bullet to the listsd
         bullet_list.add(bullet)
+        bullet_list.add(BossBullet(player.rect.x,player.rect.y,spin=x[n]))
         shootTime = 0
     for bullet in bullet_list:
 
